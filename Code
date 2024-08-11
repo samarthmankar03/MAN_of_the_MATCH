@@ -1,1 +1,163 @@
+ class Player:
+    def __init__(self, name, team, player_type, jersey_no):
+        self.name = name
+        self.team = team
+        self.player_type = player_type
+        self.jersey_no = jersey_no
+
+    def calculate_points(self):
+        return 0
+
+    def __str__(self):
+        return f" Name: {self.name}\n Team: {self.team}\n Type: {self.player_type}\n Jersey No: {self.jersey_no}\n"
+
+class Batsman(Player):
+    def __init__(self, name, team, jersey_no, runs=0, balls_faced=0, strike_rate=0.0, catches=0, run_outs=0,direct_hit=0):
+        super().__init__(name, team, "Batsman", jersey_no)
+        self.runs = runs
+        self.balls_faced = balls_faced
+        self.strike_rate = strike_rate
+        self.catches = catches
+        self.run_outs = run_outs
+        self.direct_hit = direct_hit
+
+    def calculate_points(self):
+        points = self.runs
+        if self.runs >= 50:
+            points += 8
+        if self.runs >= 100:
+            points += 16
+        points += self.catches * 8
+        points += self.run_outs * 6
+        return points
+
+    def __str__(self):
+        return super().__str__() + f" Runs: {self.runs}\n Balls Faced: {self.balls_faced}\n Strike Rate: {self.strike_rate}\n Catches: {self.catches}\n Run Outs: {self.run_outs}"
+
+
+class Bowler(Player):
+    def __init__(self, name, team, jersey_no, wickets=0, overs=0, maidens=0, runs_given=0, catches=0, run_outs=0, direct_hits=0):
+        super().__init__(name, team, "Bowler", jersey_no)
+        self.wickets = wickets
+        self.overs = overs
+        self.maidens = maidens
+        self.runs_given = runs_given
+        self.catches = catches
+        self.run_outs = run_outs
+        self.direct_hits = direct_hits
+
+    def calculate_points(self):
+        points = self.wickets * 25
+        if self.wickets >= 3:
+            points += 4
+        if self.wickets >= 4:
+            points += 8
+        if self.wickets >= 5:
+            points += 16
+        points += self.maidens * 12
+        points += self.catches * 8
+        points += self.run_outs * 6
+        points += self.direct_hits * 12
+        return points
+
+    def __str__(self):
+        return super().__str__() + f" Wickets: {self.wickets}\n Overs: {self.overs}\n Maidens: {self.maidens}\n Runs Given: {self.runs_given}\n Catches: {self.catches}\n Run Outs: {self.run_outs}\n Direct Hits: {self.direct_hits}"
+
+
+class AllRounder(Batsman, Bowler):
+    def __init__(self, name, team, jersey_no, runs=0, balls_faced=0, strike_rate=0.0,
+                 wickets=0, overs=0, maidens=0, runs_given=0, catches=0, run_outs=0, direct_hits=0):
+        Batsman.__init__(self, name, team, jersey_no, runs, balls_faced, strike_rate, catches, run_outs)
+        Bowler.__init__(self, name, team, jersey_no, wickets, overs, maidens, runs_given, catches, run_outs, direct_hits)
+        self.player_type = "All-Rounder"
+
+    def calculate_points(self):
+        return Batsman.calculate_points(self) + Bowler.calculate_points(self)
+
+    def __str__(self):
+        return super().__str__()
+
+
+class WicketKeeper(Batsman):
+    def __init__(self, name, team, jersey_no, runs=0, balls_faced=0, strike_rate=0.0, stumping=0, catches=0, run_outs=0):
+        super().__init__(name, team, jersey_no, runs, balls_faced, strike_rate, catches, run_outs)
+        self.stumping = stumping
+        self.player_type = "Wicketkeeper/Batsman"
+
+    def calculate_points(self):
+        points = super().calculate_points()
+        points += self.stumping * 12
+        return points
+
+    def __str__(self):
+        return f" Name: {self.name}\n Team: {self.team}\n Type: {self.player_type}\n Jersey No: {self.jersey_no}\n Runs: {self.runs}\n Balls Faced: {self.balls_faced}\n Strike Rate: {self.strike_rate}\n Catches: {self.catches}\n stumping: {self.stumping}"
+
+
+
+class Match:
+    def __init__(self):
+        self.players = []
+
+    def add_player(self, player):
+        self.players.append(player)
+        print(f"Added {player.name} to the match")
+
+    def calculate_man_of_the_match(self):
+        man_of_the_match = None
+        max_points = -1
+
+        for player in self.players:
+            points = player.calculate_points()
+            print(f"{player.name} = {points} points")
+            if points > max_points:
+                max_points = points
+                man_of_the_match = player
+
+        return man_of_the_match
+
+    def list_players(self):
+        print("Players in the Match:")
+        for player in self.players:
+            print(player)
+            print("\n")
+
+# custom data of 11 players
+batsman1 = Batsman("Virat Kohli", "India", 18, runs=102, balls_faced=98, strike_rate=104.08, catches=1, run_outs=1,direct_hit=1)
+batsman2 = Batsman("Rohit Sharma", "India", 45, runs=85, balls_faced=75, strike_rate=113.33, catches=2, run_outs=0)
+batsman3 = Batsman("Shubman Gill", "India", 77, runs=50, balls_faced=40, strike_rate=125.00, catches=0, run_outs=0)
+bowler1 = Bowler("Jasprit Bumrah", "India", 93, wickets=4, overs=10, maidens=1, runs_given=24, catches=1, run_outs=0, direct_hits=0)
+bowler2 = Bowler("Mohammed Shami", "India", 11, wickets=3, overs=10, maidens=1, runs_given=30, catches=0, run_outs=0, direct_hits=0)
+bowler3 = Bowler("Ravichandran Ashwin", "India", 99, wickets=2, overs=10, maidens=0, runs_given=45, catches=1, run_outs=1, direct_hits=1)
+all_rounder1 = AllRounder("Hardik Pandya", "India", 33, runs=40, balls_faced=30, strike_rate=133.33, wickets=1, overs=4, maidens=0, runs_given=25, catches=1, run_outs=0, direct_hits=0)
+all_rounder2 = AllRounder("Ravindra Jadeja", "India", 8, runs=30, balls_faced=20, strike_rate=150.00, wickets=2, overs=10, maidens=1, runs_given=40, catches=0, run_outs=1, direct_hits=0)
+wicket_keeper1 = WicketKeeper("MS Dhoni", "India", 7, runs=35, balls_faced=45, strike_rate=77.78, stumping=1, catches=2, run_outs=1)
+batsman4 = Batsman("KL Rahul", "India", 1, runs=60, balls_faced=50, strike_rate=120.00, catches=0, run_outs=0)
+batsman5 = Batsman("Suryakumar Yadav", "India", 63, runs=70, balls_faced=40, strike_rate=175.00, catches=1, run_outs=0)
+
+
+# Creating a match instance
+match = Match()
+
+# Adding players to the match
+match.add_player(batsman1)
+match.add_player(batsman2)
+match.add_player(batsman3)
+match.add_player(bowler1)
+match.add_player(bowler2)
+match.add_player(bowler3)
+match.add_player(all_rounder1)
+match.add_player(all_rounder2)
+match.add_player(wicket_keeper1)
+match.add_player(batsman4)
+match.add_player(batsman5)
+print("\n")
+
+# printing list of all players
+match.list_players()
+    
+
+# finding and printing Man of the Match
+man_of_the_match = match.calculate_man_of_the_match()
+print("\n")
+print("Man of the Match:", man_of_the_match.name )
 
